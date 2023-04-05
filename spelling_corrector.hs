@@ -36,9 +36,34 @@ suggest_similar_word input corrector = do
   let input_lower = map toLower input
   case find_string input_lower (dictionary corrector) of
     Just trie -> Just input_lower
-    Nothing ->  Nothing-- do
-      --let edit_dist1 = gen_edit_dist1 input_lower
+    Nothing -> do
+      let edit_dist1 = gen_edit_dist1 input_lower
+      case HashSet.size (find_in_edit_dist edit_dist1 (dictionary corrector)) of
+        0 -> do
+          let edit_dist2 = gen_edit_dist2 (HashSet.toList edit_dist1)
+          case HashSet.size (find_in_edit_dist edit_dist2 (dictionary corrector)) of
+            0 -> Nothing
+            _ -> do
+              let words = HashSet.toList (find_in_edit_dist edit_dist2 (dictionary corrector))
+              let zipped_nodes = zip words (map (\word -> find_string word (dictionary corrector)) words)
+              let max_node = maximum zipped_nodes
+              let word = fst max_node
+              Just word
+        _ -> do
+          let words = HashSet.toList (find_in_edit_dist (gen_edit_dist1 input_lower) (dictionary corrector))
+          let zipped_nodes = zip words (map (\word -> find_string word (dictionary corrector)) words)
+          let max_node = maximum zipped_nodes
+          let word = fst max_node
+          Just word
 
+testFunc :: String -> String -> IO ()
+testFunc file_name input = do
+  corrector <- load_dictionary file_name new_corrector
+  case suggest_similar_word input corrector of
+    Just word -> putStrLn word
+    Nothing -> putStrLn "No suggestions found"
+
+{-
 testFunc :: String -> String -> IO ()
 testFunc file_name input = do
   corrector <- load_dictionary file_name new_corrector
@@ -63,7 +88,7 @@ testFunc file_name input = do
           let max_node = maximum zipped_nodes
           let word = fst max_node
           putStrLn word
-      
+      -}
 
 find_in_edit_dist :: HashSet.HashSet String -> Trie -> HashSet.HashSet String
 find_in_edit_dist edit_dist dict = HashSet.filter (\word -> isJust (find_string word dict)) edit_dist
