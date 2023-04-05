@@ -1,3 +1,5 @@
+module Trie where
+
 import Data.List
 import Data.Char (ord)
 import Data.Maybe
@@ -6,7 +8,7 @@ data Trie = Trie {
   value :: Maybe Char,
   freq :: Int,
   children :: [Maybe Trie] 
-  } 
+  } deriving (Show)
 
 char_to_index :: Char -> Int
 char_to_index c = (ord c) - (ord 'a')
