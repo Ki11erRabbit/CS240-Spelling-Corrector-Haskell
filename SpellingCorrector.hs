@@ -1,3 +1,5 @@
+module SpellingCorrector where
+
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use camelCase" #-}
 import Trie
