@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 import Trie
 
 import qualified Data.Text as Text
@@ -6,6 +8,7 @@ import System.IO (withFile, IOMode(ReadMode), hGetContents, Handle)
 import Data.List
 import Data.Char (toLower)
 import qualified Data.HashSet as HashSet
+import Data.Ord
 
 data SpellingCorrector = SpellingCorrector {
   dictionary :: Trie
@@ -59,12 +62,61 @@ testFunc file_name input = do
   corrector <- load_dictionary file_name new_corrector
   case suggest_similar_word input corrector of
     Just word -> putStrLn word
-    Nothing -> putStrLn "No suggestions"
+    Nothing -> do
+      case HashSet.size (find_in_edit_dist (gen_edit_dist1 input) (dictionary corrector)) of
+        0 ->do
+          
+          putStrLn "No suggestions found"
+        _ -> do
+          let words = HashSet.toList (find_in_edit_dist (gen_edit_dist1 input) (dictionary corrector))
+          let zipped_nodes = zip words (map (\word -> find_string word (dictionary corrector)) words)
+          let max_node = maximum zipped_nodes
+          let word = fst max_node
+          putStrLn (word)
+      
 
+{-instance Ord (String, Maybe Trie) where
+  compare (wordL, Just trieL) (wordR, Just trieR) = compare (freq trieL) (freq trieR)
+
+  max (wordL, Just trieL) (wordR, Just trieR) = if freq trieL > freq trieR then (wordL, Just trieL) else (wordR, Just trieR)
+  max (wordL, Nothing) (wordR, Just trieR) = (wordR, Just trieR)
+  max (wordL, Just trieL) (wordR, Nothing) = (wordL, Just trieL)
+  max (wordL, Nothing) (wordR, Nothing) = (wordL, Nothing)
   
+  min (wordL, Just trieL) (wordR, Just trieR) = if freq trieL < freq trieR then (wordL, Just trieL) else (wordR, Just trieR)
+  min (wordL, Nothing) (wordR, Just trieR) = (wordR, Just trieR)
+  min (wordL, Just trieL) (wordR, Nothing) = (wordL, Just trieL)
+  min (wordL, Nothing) (wordR, Nothing) = (wordL, Nothing) 
+  
+  (<) (wordL, Just trieL) (wordR, Just trieR) = freq trieL < freq trieR
+  (<) (wordL, Nothing) (wordR, Just trieR) = True
+  (<) (wordL, Just trieL) (wordR, Nothing) = False
+  (<) (wordL, Nothing) (wordR, Nothing) = False
+
+  (>) (wordL, Just trieL) (wordR, Just trieR) = freq trieL > freq trieR
+  (>) (wordL, Nothing) (wordR, Just trieR) = False
+  (>) (wordL, Just trieL) (wordR, Nothing) = True
+  (>) (wordL, Nothing) (wordR, Nothing) = False
+
+  (<=) (wordL, Just trieL) (wordR, Just trieR) = freq trieL <= freq trieR
+  (<=) (wordL, Nothing) (wordR, Just trieR) = True
+  (<=) (wordL, Just trieL) (wordR, Nothing) = False
+  (<=) (wordL, Nothing) (wordR, Nothing) = True
+
+  (>=) (wordL, Just trieL) (wordR, Just trieR) = freq trieL >= freq trieR
+  (>=) (wordL, Nothing) (wordR, Just trieR) = False
+  (>=) (wordL, Just trieL) (wordR, Nothing) = True-}
+
+
+find_in_edit_dist :: HashSet.HashSet String -> Trie -> HashSet.HashSet String
+find_in_edit_dist edit_dist dict = HashSet.filter (\word -> find_string word dict /= Nothing) edit_dist
 
 gen_edit_dist1 :: String -> HashSet.HashSet String
 gen_edit_dist1 word = HashSet.union (insert_char word) (HashSet.union (alternate_char word) (HashSet.union (delete_char word) (transpose_char word)))
+
+gen_edit_dist2 :: [String] -> HashSet.HashSet String
+gen_edit_dist2 [] = HashSet.empty
+gen_edit_dist2 words = HashSet.fromList (concatMap (\word -> HashSet.toList (gen_edit_dist1 word)) words)
 
 delete_char :: String -> HashSet.HashSet String
 delete_char str = HashSet.fromList (delete_char_helper str 0)

@@ -3,6 +3,7 @@ module Trie where
 import Data.List
 import Data.Char (ord)
 import Data.Maybe
+import Data.Ord
 
 import Debug.Trace
 
@@ -39,6 +40,15 @@ find_string (c:str) trie = let child_tries = children trie
                                     Nothing -> Nothing
                                     Just child_trie -> find_string str child_trie
 
+
+instance Ord Trie where
+  compare right left = compare (freq right) (freq left)
+
+--TODO: make this better
+instance Eq Trie where
+  (==) right left = (freq right == freq left) && (value right == value left) && (children right == children left)
+  
+  (/=) right left = not (right == left)
 
 {-class ShowHelper a where
   show_helper :: a -> String
