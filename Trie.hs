@@ -4,6 +4,8 @@ import Data.List
 import Data.Char (ord)
 import Data.Maybe
 
+import Debug.Trace
+
 data Trie = Trie {
   value :: Maybe Char,
   freq :: Int,
