@@ -58,7 +58,7 @@ mainLoop corrector = do
       n_corrector <- load_dictionary dict_name corrector
       mainLoop n_corrector
     ":s" -> do
-      putStrLn $ "Dictionary: " ++ (show $ dictionary corrector)
+      putStrLn $ "Dictionary: \n" ++ (show $ dictionary corrector)
       mainLoop corrector
     _ -> do
       let suggestion = suggest_similar_word word corrector

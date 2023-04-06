@@ -1,9 +1,12 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module Trie where
 
 import Data.List
 import Data.Char (ord)
 import Data.Maybe
 import Data.Ord
+import qualified Data.Maybe as Maybe
 
 import Debug.Trace
 
@@ -11,7 +14,7 @@ data Trie = Trie {
   value :: Maybe Char,
   freq :: Int,
   children :: [Maybe Trie] 
-  } deriving (Show)
+  } 
 
 char_to_index :: Char -> Int
 char_to_index c = (ord c) - (ord 'a')
@@ -53,21 +56,12 @@ instance Eq Trie where
   (/=) right left = not (right == left)
 
 
-{-class ShowHelper a where
-  show_helper :: a -> String
-
-instance ShowHelper Trie where
-  show_helper trie = concatMap (
-    \ltrie -> case value ltrie of
-      Nothing -> ""
-      Just ctrie -> (maybe '\t' id value ctrie : show_helper ltrie) ++ if freq trie >= 1 then "\n" else "") children trie
-
-instance ShowHelper (Maybe Trie) where
-  show_helper Nothing = ""
-  show_helper Just trie = concatMap (
-    \ltrie -> case value ltrie of
-      Nothing -> ""
-      Just ctrie -> (maybe '\t' id value ctrie : show_helper ltrie) ++ if freq trie >= 1 then "\n" else "") children trie
-
 instance Show Trie where
-  show trie = show_helper trie -}
+  show trie = concatMap (show_helper "") (children trie)
+
+show_helper :: String -> Maybe Trie -> String
+show_helper str Nothing = ""
+show_helper str (Just trie) = if freq trie >= 1 then holder ++ '\n':concatMap (show_helper holder) (children trie) else concatMap (show_helper holder) (children trie) 
+  where holder = str ++ [maybe '\t' id (value trie)]
+
+
