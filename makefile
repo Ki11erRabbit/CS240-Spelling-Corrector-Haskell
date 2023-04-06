@@ -1,5 +1,5 @@
 CC=ghc
-CFLAGS=-O
+CFLAGS=-O2
 
 OBJ = Main.o SpellingCorrector.o Trie.o
 INTER = Main.hi SpellingCorrector.hi Trie.hi
