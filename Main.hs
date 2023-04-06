@@ -2,7 +2,7 @@ import SpellingCorrector
 
 import System.Environment
 import Data.List
-import Trie (add_string)
+import Trie (add_string, get_node_count, get_word_count)
 
 
 main :: IO ()
@@ -52,13 +52,19 @@ mainLoop corrector = do
       let n_corrector' = SpellingCorrector (add_string word (dictionary corrector))
       mainLoop n_corrector'
     ":o" -> do
-      putStrLn "Options:\n :q - quit\n :l [word] - add word to dictionary\n :o - show options\n :r - reload dictionary\n :s - show dictionary"
+      putStrLn "Options:\n :q - quit\n :l [word] - add word to dictionary\n :o - show options\n :r - reload dictionary\n :s - show dictionary\n :n - show number of nodes in dictionary\n :w - show number of words in dictionary"
       mainLoop corrector
     (':':'r':' ':dict_name) -> do
       n_corrector <- load_dictionary dict_name corrector
       mainLoop n_corrector
     ":s" -> do
       putStrLn $ "Dictionary: \n" ++ (show $ dictionary corrector)
+      mainLoop corrector
+    ":n" -> do
+      putStrLn $ "Number of nodes in dictionary: " ++ (show $ get_node_count (dictionary corrector))
+      mainLoop corrector
+    ":w" -> do
+      putStrLn $ "Number of words in dictionary: " ++ (show $ get_word_count (dictionary corrector))
       mainLoop corrector
     _ -> do
       let suggestion = suggest_similar_word word corrector

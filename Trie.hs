@@ -65,3 +65,16 @@ show_helper str (Just trie) = if freq trie >= 1 then holder ++ '\n':concatMap (s
   where holder = str ++ [maybe '\t' id (value trie)]
 
 
+get_node_count :: Trie -> Int
+get_node_count trie = sum (map get_node_count_helper (children trie))
+
+get_node_count_helper :: Maybe Trie -> Int
+get_node_count_helper Nothing = 0
+get_node_count_helper (Just trie) = 1 + get_node_count trie
+
+get_word_count :: Trie -> Int
+get_word_count trie = sum (map get_word_count_helper (children trie))
+
+get_word_count_helper :: Maybe Trie -> Int
+get_word_count_helper Nothing = 0
+get_word_count_helper (Just trie) = freq trie + get_word_count trie
