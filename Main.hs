@@ -44,7 +44,7 @@ interactiveMode = do
 
 mainLoop :: SpellingCorrector -> IO ()
 mainLoop corrector = do
-  putStrLn "Enter a word to check: (:q to quit)"
+  putStrLn "Enter a word to check: (:o to see options)"
   word <- getLine
   case word of
     ":q" -> return ()
