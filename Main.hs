@@ -49,8 +49,8 @@ mainLoop corrector = do
   case word of
     ":q" -> return ()
     (':':'l':' ':word) -> do
-      let n_corrector' = SpellingCorrector (add_string word (dictionary corrector))
-      mainLoop n_corrector'
+      n_corrector <- load_dictionary word corrector
+      mainLoop n_corrector
     ":o" -> do
       putStrLn "Options:\n :q - quit\n :l [word] - add word to dictionary\n :o - show options\n :r - reload dictionary\n :s - show dictionary\n :n - show number of nodes in dictionary\n :w - show number of words in dictionary"
       mainLoop corrector
